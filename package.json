@@ -28,12 +28,13 @@
     "budo": "^8.0.4",
     "envify": "^3.4.0",
     "eslint": "^2.0.0",
+    "mapbox-gl": "^0.47.0-beta.1",
     "smokestack": "^3.4.1",
     "tap-status": "^1.0.1",
     "tape": "^4.4.0",
     "uglify-js": "^2.6.1"
   },
   "dependencies": {
-    "mapbox-gl-sync-move": "^0.1.0"
+    "@mapbox/mapbox-gl-sync-move": "github:rulyotano/mapbox-gl-sync-move#clear-synchronization"
   }
 }

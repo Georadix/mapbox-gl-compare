@@ -17,21 +17,24 @@ function Compare(a, b, options) {
   this._container.className = 'mapboxgl-compare';
   this._container.appendChild(this._swiper);
 
-  a.getContainer().appendChild(this._container);
+  this._mainMap = a;
+  this._mainMap.getContainer().appendChild(this._container);
 
   this._clippedMap = b;
-  this._bounds = b.getContainer().getBoundingClientRect();
+  this._bounds = this._clippedMap.getContainer().getBoundingClientRect();
   this._setPosition(this._bounds.width / 2);
-  syncMove(a, b);
+  this._clearSync = syncMove(this._mainMap, this._clippedMap);
 
-  b.on('resize', function() {
-    this._bounds = b.getContainer().getBoundingClientRect();
+  this._onResize = function() {
+    this._bounds = this._clippedMap.getContainer().getBoundingClientRect();
     if (this._x) this._setPosition(this._x);
-  }.bind(this));
+  }.bind(this);
+
+  this._clippedMap.on('resize', this._onResize);
 
   if (this.options && this.options.mousemove) {
-    a.getContainer().addEventListener('mousemove', this._onMove);
-    b.getContainer().addEventListener('mousemove', this._onMove);
+    this._mainMap.getContainer().addEventListener('mousemove', this._onMove);
+    this._clippedMap.getContainer().addEventListener('mousemove', this._onMove);
   }
 
   this._swiper.addEventListener('mousedown', this._onDown);
@@ -87,6 +90,26 @@ Compare.prototype = {
     if (x < 0) x = 0;
     if (x > this._bounds.width) x = this._bounds.width;
     return x;
+  },
+
+  remove: function() {
+    this._clearSync();
+    this._clippedMap.off('resize', this._onResize);
+    var mainContainer = this._mainMap.getContainer();
+    
+    if (mainContainer) {
+      mainContainer .removeEventListener('mousemove', this._onMove);
+    }
+    
+    var secondContainer = this._clippedMap.getContainer();
+    
+    if (secondContainer) {
+      secondContainer.removeEventListener('mousemove', this._onMove);
+    }
+    
+    this._swiper.removeEventListener('mousedown', this._onDown);
+    this._swiper.removeEventListener('touchstart', this._onDown);
+    this._container.remove()
   }
 };
 
