@@ -5,6 +5,9 @@ var syncMove = require('@mapbox/mapbox-gl-sync-move');
 
 function Compare(a, b, options) {
   this.options = options ? options : {};
+  
+  this._onPositionChangedCallbacks = [];
+
   this._onDown = this._onDown.bind(this);
   this._onMove = this._onMove.bind(this);
   this._onMouseUp = this._onMouseUp.bind(this);
@@ -36,8 +39,6 @@ function Compare(a, b, options) {
     this._mainMap.getContainer().addEventListener('mousemove', this._onMove);
     this._clippedMap.getContainer().addEventListener('mousemove', this._onMove);
   }
-
-  this._onPositionChangedCallbacks = [];
 
   this._swiper.addEventListener('mousedown', this._onDown);
   this._swiper.addEventListener('touchstart', this._onDown);
