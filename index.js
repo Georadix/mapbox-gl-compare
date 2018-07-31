@@ -37,6 +37,8 @@ function Compare(a, b, options) {
     this._clippedMap.getContainer().addEventListener('mousemove', this._onMove);
   }
 
+  this._onPositionChangedCallbacks = [];
+
   this._swiper.addEventListener('mousedown', this._onDown);
   this._swiper.addEventListener('touchstart', this._onDown);
 }
@@ -58,7 +60,7 @@ Compare.prototype = {
   },
 
   _setPosition: function(x) {
-    x = Math.min(x, this._bounds.width);
+    x = Math.max(Math.min(x, this._bounds.width), 0);
     var pos = 'translate(' + x + 'px, 0)';
     this._container.style.transform = pos;
     this._container.style.WebkitTransform = pos;
@@ -77,11 +79,17 @@ Compare.prototype = {
   _onMouseUp: function() {
     document.removeEventListener('mousemove', this._onMove);
     document.removeEventListener('mouseup', this._onMouseUp);
+    this._onPositionChangedCallbacks.forEach(callback => {
+      callback(this._x);
+    });
   },
 
   _onTouchEnd: function() {
     document.removeEventListener('touchmove', this._onMove);
     document.removeEventListener('touchend', this._onTouchEnd);
+    this._onPositionChangedCallbacks.forEach(callback => {
+      callback(this._x);
+    });
   },
 
   _getX: function(e) {
@@ -90,6 +98,24 @@ Compare.prototype = {
     if (x < 0) x = 0;
     if (x > this._bounds.width) x = this._bounds.width;
     return x;
+  },
+
+  setSlider: function(x) {
+    this._setPosition(x);
+  },
+
+  on: function(event, func) {
+    if (event === 'slideend') {
+      this._onPositionChangedCallbacks.push(func);
+    }
+  },
+
+  off: function(event, func) {
+    const i = this._onPositionChangedCallbacks.indexOf(func);
+
+    if (i >= 0) {
+      this._onPositionChangedCallbacks.splice(i, 1);
+    }
   },
 
   remove: function() {
@@ -107,6 +133,7 @@ Compare.prototype = {
       secondContainer.removeEventListener('mousemove', this._onMove);
     }
     
+    this._onPositionChangedCallbacks = [];
     this._swiper.removeEventListener('mousedown', this._onDown);
     this._swiper.removeEventListener('touchstart', this._onDown);
     this._container.remove()
