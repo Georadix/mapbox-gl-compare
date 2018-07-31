@@ -65,6 +65,13 @@ Compare.prototype = {
     this._container.style.transform = pos;
     this._container.style.WebkitTransform = pos;
     this._clippedMap.getContainer().style.clip = 'rect(0, 999em, ' + this._bounds.height + 'px,' + x + 'px)';
+
+    if (this._x !== x) {
+      this._onPositionChangedCallbacks.forEach(callback => {
+        callback(this._x);
+      });
+    }
+    
     this._x = x;
   },
 
@@ -79,17 +86,11 @@ Compare.prototype = {
   _onMouseUp: function() {
     document.removeEventListener('mousemove', this._onMove);
     document.removeEventListener('mouseup', this._onMouseUp);
-    this._onPositionChangedCallbacks.forEach(callback => {
-      callback(this._x);
-    });
   },
 
   _onTouchEnd: function() {
     document.removeEventListener('touchmove', this._onMove);
     document.removeEventListener('touchend', this._onTouchEnd);
-    this._onPositionChangedCallbacks.forEach(callback => {
-      callback(this._x);
-    });
   },
 
   _getX: function(e) {
