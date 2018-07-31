@@ -69,7 +69,7 @@ Compare.prototype = {
 
     if (this._x !== x) {
       this._onPositionChangedCallbacks.forEach(callback => {
-        callback(this._x);
+        callback(this._x / this._bounds.width);
       });
     }
     
@@ -102,8 +102,8 @@ Compare.prototype = {
     return x;
   },
 
-  setSlider: function(x) {
-    this._setPosition(x);
+  setSlider: function(widthPercentage) {
+    this._setPosition(widthPercentage * this._bounds.width);
   },
 
   on: function(event, func) {
